@@ -8,31 +8,34 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-// Mock data for invoices
-const mockInvoices = [
-  { id: 1, date: '2023-05-01', client: 'Acme Corp', phone: '(555) 123-4567', email: 'contact@acme.com', amount: 1000, status: 'Paid', dueDate: '2023-05-15' },
-  { id: 2, date: '2023-05-05', client: 'Globex Inc', phone: '(555) 987-6543', email: 'info@globex.com', amount: 1500, status: 'Pending', dueDate: '2023-05-20' },
-  { id: 3, date: '2023-05-08', client: 'Initech', phone: '(555) 246-8135', email: 'sales@initech.com', amount: 800, status: 'Overdue', dueDate: '2023-05-10' },
-]
+import { v4 as uuidv4 } from 'uuid'
+import { Invoice } from '@/utils/types'
+import { mockInvoices } from '@/utils/mocks'
 
 export function InvoiceManagement() {
-  const [invoices, setInvoices] = useState(mockInvoices)
-  const [newInvoice, setNewInvoice] = useState({ date: '', client: '', phone: '', email: '', amount: '', status: '', dueDate: '' })
+  const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices)
+  const [newInvoice, setNewInvoice] = useState<Omit<Invoice, 'id'>>({ date: '', client: '', phone: '', email: '', amount: 0, status: 'Pending', dueDate: '' })
+  const [error, setError] = useState<string>('')
 
   const handleCreateInvoice = () => {
-    const invoice = {
-      id: invoices.length + 1,
-      date: newInvoice.date,
-      client: newInvoice.client,
-      phone: newInvoice.phone,
-      email: newInvoice.email,
-      amount: parseFloat(newInvoice.amount),
-      status: newInvoice.status,
-      dueDate: newInvoice.dueDate,
+    const { date, client, phone, email, amount, status, dueDate } = newInvoice
+    if (!date || !client || !phone || !email || amount <= 0 || !status || !dueDate) {
+      setError('All fields are required and amount must be greater than 0.')
+      return
+    }
+    const invoice: Invoice = {
+      id: uuidv4(),
+      date,
+      client,
+      phone,
+      email,
+      amount,
+      status,
+      dueDate,
     }
     setInvoices([...invoices, invoice])
-    setNewInvoice({ date: '', client: '', phone: '', email: '', amount: '', status: '', dueDate: '' })
+    setNewInvoice({ date: '', client: '', phone: '', email: '', amount: 0, status: 'Pending', dueDate: '' })
+    setError('')
   }
 
   return (
@@ -73,6 +76,7 @@ export function InvoiceManagement() {
                   value={newInvoice.client}
                   onChange={(e) => setNewInvoice({ ...newInvoice, client: e.target.value })}
                   className="col-span-3"
+                  placeholder="Client Name"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -84,6 +88,8 @@ export function InvoiceManagement() {
                   value={newInvoice.phone}
                   onChange={(e) => setNewInvoice({ ...newInvoice, phone: e.target.value })}
                   className="col-span-3"
+                  placeholder="(555) 123-4567"
+                  type="tel"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -96,6 +102,7 @@ export function InvoiceManagement() {
                   value={newInvoice.email}
                   onChange={(e) => setNewInvoice({ ...newInvoice, email: e.target.value })}
                   className="col-span-3"
+                  placeholder="email@example.com"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -106,8 +113,11 @@ export function InvoiceManagement() {
                   id="amount"
                   type="number"
                   value={newInvoice.amount}
-                  onChange={(e) => setNewInvoice({ ...newInvoice, amount: e.target.value })}
+                  onChange={(e) => setNewInvoice({ ...newInvoice, amount: parseFloat(e.target.value) })}
                   className="col-span-3"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -115,7 +125,8 @@ export function InvoiceManagement() {
                   Status
                 </Label>
                 <Select
-                  onValueChange={(value) => setNewInvoice({ ...newInvoice, status: value })}
+                  value={newInvoice.status}
+                  onValueChange={(value) => setNewInvoice({ ...newInvoice, status: value as Invoice['status'] })}
                 >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select status" />
@@ -139,6 +150,11 @@ export function InvoiceManagement() {
                   className="col-span-3"
                 />
               </div>
+              {error && (
+                <div className="col-span-4 text-red-500 text-sm">
+                  {error}
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button onClick={handleCreateInvoice}>Create Invoice</Button>

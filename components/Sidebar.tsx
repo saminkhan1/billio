@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { DollarSign, FileText, CreditCard, Users, Settings, Package, Clipboard, RefreshCw, Truck } from 'lucide-react'
+import { DollarSign, FileText, CreditCard, Users, Settings, Package, Clipboard, RefreshCw, Truck, Store, ShoppingCart, Receipt } from 'lucide-react'
 
 interface SidebarProps {
     activeTab: string;
@@ -48,6 +48,18 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
                 <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('settings')}>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('vendors')}>
+                    <Store className="mr-2 h-4 w-4" />
+                    Vendors
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('purchase-orders')}>
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Purchase Orders
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" onClick={() => setActiveTab('expenses')}>
+                    <Receipt className="mr-2 h-4 w-4" />
+                    Expenses
                 </Button>
             </nav>
         </aside>

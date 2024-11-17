@@ -8,29 +8,32 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-// Mock data for payments
-const mockPayments = [
-  { id: 1, date: '2023-05-01', invoiceId: 'INV001', name: 'Acme Corp', mode: 'Credit Card', amount: 1000 },
-  { id: 2, date: '2023-05-05', invoiceId: 'INV002', name: 'Globex Inc', mode: 'Bank Transfer', amount: 1500 },
-  { id: 3, date: '2023-05-08', invoiceId: 'INV003', name: 'Initech', mode: 'Cash', amount: 800 },
-]
+import { Payment } from '@/utils/types'
+import { mockPayments } from '@/utils/mocks'
+import { v4 as uuidv4 } from 'uuid'
 
 export function PaymentsManagement() {
-  const [payments, setPayments] = useState(mockPayments)
-  const [newPayment, setNewPayment] = useState({ date: '', invoiceId: '', name: '', mode: '', amount: '' })
+  const [payments, setPayments] = useState<Payment[]>(mockPayments)
+  const [newPayment, setNewPayment] = useState<Omit<Payment, 'id'>>({ date: '', invoiceId: '', name: '', mode: 'Credit Card', amount: 0 })
+  const [error, setError] = useState<string>('')
 
   const handleCreatePayment = () => {
-    const payment = {
-      id: payments.length + 1,
-      date: newPayment.date,
-      invoiceId: newPayment.invoiceId,
-      name: newPayment.name,
-      mode: newPayment.mode,
-      amount: parseFloat(newPayment.amount),
+    const { date, invoiceId, name, mode, amount } = newPayment
+    if (!date || !invoiceId || !name || !mode || amount <= 0) {
+      setError('All fields are required and amount must be greater than 0.')
+      return
+    }
+    const payment: Payment = {
+      id: uuidv4(),
+      date,
+      invoiceId,
+      name,
+      mode,
+      amount,
     }
     setPayments([...payments, payment])
-    setNewPayment({ date: '', invoiceId: '', name: '', mode: '', amount: '' })
+    setNewPayment({ date: '', invoiceId: '', name: '', mode: 'Credit Card', amount: 0 })
+    setError('')
   }
 
   return (
@@ -71,6 +74,7 @@ export function PaymentsManagement() {
                   value={newPayment.invoiceId}
                   onChange={(e) => setNewPayment({ ...newPayment, invoiceId: e.target.value })}
                   className="col-span-3"
+                  placeholder="INV001"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -82,6 +86,7 @@ export function PaymentsManagement() {
                   value={newPayment.name}
                   onChange={(e) => setNewPayment({ ...newPayment, name: e.target.value })}
                   className="col-span-3"
+                  placeholder="Client Name"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -89,7 +94,8 @@ export function PaymentsManagement() {
                   Mode
                 </Label>
                 <Select
-                  onValueChange={(value) => setNewPayment({ ...newPayment, mode: value })}
+                  value={newPayment.mode}
+                  onValueChange={(value) => setNewPayment({ ...newPayment, mode: value as Payment['mode'] })}
                 >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select mode" />
@@ -109,10 +115,18 @@ export function PaymentsManagement() {
                   id="amount"
                   type="number"
                   value={newPayment.amount}
-                  onChange={(e) => setNewPayment({ ...newPayment, amount: e.target.value })}
+                  onChange={(e) => setNewPayment({ ...newPayment, amount: parseFloat(e.target.value) })}
                   className="col-span-3"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
                 />
               </div>
+              {error && (
+                <div className="col-span-4 text-red-500 text-sm">
+                  {error}
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button onClick={handleCreatePayment}>Record Payment</Button>

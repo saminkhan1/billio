@@ -14,6 +14,10 @@ import { PaymentsManagement } from '@/components/payments-management'
 import { RefundsManagement } from '@/components/refunds-management'
 import { DeliveryNoteManagement } from '@/components/delivery-note-management'
 import Settings from '@/components/Settings'
+import { VendorManagement } from '@/components/vendor-management'
+import { PurchaseOrderManagement } from '@/components/purchase-order-management'
+import { ExpenseManagement } from '@/components/expense-management'
+
 export default function Dashboard() {
     const [activeTab, setActiveTab] = useState('overview')
 
@@ -107,6 +111,39 @@ export default function Dashboard() {
                     </TabsContent>
                     <TabsContent value="settings">
                         <Settings />
+                    </TabsContent>
+                    <TabsContent value="vendors">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Vendors</CardTitle>
+                                <CardDescription>Manage your vendors here.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <VendorManagement />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="purchase-orders">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Purchase Orders</CardTitle>
+                                <CardDescription>Manage your purchase orders here.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <PurchaseOrderManagement />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="expenses">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Expenses</CardTitle>
+                                <CardDescription>Manage your expenses here.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ExpenseManagement />
+                            </CardContent>
+                        </Card>
                     </TabsContent>
                 </Tabs>
             </main>

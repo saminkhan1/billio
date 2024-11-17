@@ -8,29 +8,28 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { v4 as uuidv4 } from 'uuid'
-import { DeliveryNote } from '@/utils/types'
-import { mockDeliveryNotes } from '@/utils/mocks'
+import { Vendor } from '@/utils/types'
+import { mockVendors } from '@/utils/mocks'
 
-export function DeliveryNoteManagement() {
-  const [deliveryNotes, setDeliveryNotes] = useState<DeliveryNote[]>(mockDeliveryNotes)
-  const [newDeliveryNote, setNewDeliveryNote] = useState<Omit<DeliveryNote, 'id'>>({ date: '', name: '', contact: '', email: '' })
+export function VendorManagement() {
+  const [vendors, setVendors] = useState<Vendor[]>(mockVendors)
+  const [newVendor, setNewVendor] = useState<Omit<Vendor, 'id'>>({ name: '', contact: '', email: '' })
   const [error, setError] = useState<string>('')
 
-  const handleCreateDeliveryNote = () => {
-    const { date, name, contact, email } = newDeliveryNote
-    if (!date || !name || !contact || !email) {
+  const handleCreateVendor = () => {
+    const { name, contact, email } = newVendor
+    if (!name || !contact || !email) {
       setError('All fields are required.')
       return
     }
-    const deliveryNote: DeliveryNote = {
+    const vendor: Vendor = {
       id: uuidv4(),
-      date,
       name,
       contact,
       email,
     }
-    setDeliveryNotes([...deliveryNotes, deliveryNote])
-    setNewDeliveryNote({ date: '', name: '', contact: '', email: '' })
+    setVendors([...vendors, vendor])
+    setNewVendor({ name: '', contact: '', email: '' })
     setError('')
   }
 
@@ -40,39 +39,27 @@ export function DeliveryNoteManagement() {
         <Dialog>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="mr-2 h-4 w-4" /> Add Delivery Note
+              <Plus className="mr-2 h-4 w-4" /> Add Vendor
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Delivery Note</DialogTitle>
+              <DialogTitle>Add New Vendor</DialogTitle>
               <DialogDescription>
-                Enter the details for the new delivery note.
+                Enter the details for the new vendor.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="date" className="text-right">
-                  Date
-                </Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={newDeliveryNote.date}
-                  onChange={(e) => setNewDeliveryNote({ ...newDeliveryNote, date: e.target.value })}
-                  className="col-span-3"
-                />
-              </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
                   Name
                 </Label>
                 <Input
                   id="name"
-                  value={newDeliveryNote.name}
-                  onChange={(e) => setNewDeliveryNote({ ...newDeliveryNote, name: e.target.value })}
+                  value={newVendor.name}
+                  onChange={(e) => setNewVendor({ ...newVendor, name: e.target.value })}
                   className="col-span-3"
-                  placeholder="Recipient Name"
+                  placeholder="Vendor Name"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -81,8 +68,8 @@ export function DeliveryNoteManagement() {
                 </Label>
                 <Input
                   id="contact"
-                  value={newDeliveryNote.contact}
-                  onChange={(e) => setNewDeliveryNote({ ...newDeliveryNote, contact: e.target.value })}
+                  value={newVendor.contact}
+                  onChange={(e) => setNewVendor({ ...newVendor, contact: e.target.value })}
                   className="col-span-3"
                   placeholder="(555) 123-4567"
                   type="tel"
@@ -95,8 +82,8 @@ export function DeliveryNoteManagement() {
                 <Input
                   id="email"
                   type="email"
-                  value={newDeliveryNote.email}
-                  onChange={(e) => setNewDeliveryNote({ ...newDeliveryNote, email: e.target.value })}
+                  value={newVendor.email}
+                  onChange={(e) => setNewVendor({ ...newVendor, email: e.target.value })}
                   className="col-span-3"
                   placeholder="email@example.com"
                 />
@@ -108,7 +95,7 @@ export function DeliveryNoteManagement() {
               )}
             </div>
             <DialogFooter>
-              <Button onClick={handleCreateDeliveryNote}>Add Delivery Note</Button>
+              <Button onClick={handleCreateVendor}>Add Vendor</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -116,25 +103,21 @@ export function DeliveryNoteManagement() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>D Note #</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Contact #</TableHead>
             <TableHead>Email</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {deliveryNotes.map((note) => (
-            <TableRow key={note.id}>
-              <TableCell>{note.date}</TableCell>
-              <TableCell>{note.id}</TableCell>
-              <TableCell>{note.name}</TableCell>
-              <TableCell>{note.contact}</TableCell>
-              <TableCell>{note.email}</TableCell>
+          {vendors.map((vendor) => (
+            <TableRow key={vendor.id}>
+              <TableCell>{vendor.name}</TableCell>
+              <TableCell>{vendor.contact}</TableCell>
+              <TableCell>{vendor.email}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </div>
   )
-}
+} 

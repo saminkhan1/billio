@@ -7,48 +7,56 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Estimate } from '@/utils/types'
-import { mockEstimates } from '@/utils/mocks'
 import { v4 as uuidv4 } from 'uuid'
-export function EstimatesManagement() {
-  const [estimates, setEstimates] = useState<Estimate[]>(mockEstimates)
-  const [newEstimate, setNewEstimate] = useState<Omit<Estimate, 'id'>>({ date: '', name: '', contact: '', email: '', amount: 0 })
+import { PurchaseOrder } from '@/utils/types'
+import { mockPurchaseOrders } from '@/utils/mocks'
+
+export function PurchaseOrderManagement() {
+  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(mockPurchaseOrders)
+  const [newPurchaseOrder, setNewPurchaseOrder] = useState<Omit<PurchaseOrder, 'id'>>({
+    date: '',
+    poNumber: '',
+    vendorName: '',
+    contact: '',
+    email: '',
+    amount: 0
+  })
   const [error, setError] = useState<string>('')
 
-  const handleCreateEstimate = () => {
-    const { date, name, contact, email, amount } = newEstimate
-    if (!date || !name || !contact || !email || amount <= 0) {
+  const handleCreatePurchaseOrder = () => {
+    const { date, poNumber, vendorName, contact, email, amount } = newPurchaseOrder
+    if (!date || !poNumber || !vendorName || !contact || !email || amount <= 0) {
       setError('All fields are required and amount must be greater than 0.')
       return
     }
-    const estimate: Estimate = {
+    const purchaseOrder: PurchaseOrder = {
       id: uuidv4(),
       date,
-      name,
+      poNumber,
+      vendorName,
       contact,
       email,
-      amount,
+      amount
     }
-    setEstimates([...estimates, estimate])
-    setNewEstimate({ date: '', name: '', contact: '', email: '', amount: 0 })
+    setPurchaseOrders([...purchaseOrders, purchaseOrder])
+    setNewPurchaseOrder({ date: '', poNumber: '', vendorName: '', contact: '', email: '', amount: 0 })
     setError('')
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end ">
+      <div className="flex justify-end">
         <Dialog>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="mr-2 h-4 w-4" /> Create Estimate
+              <Plus className="mr-2 h-4 w-4" /> Create Purchase Order
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Estimate</DialogTitle>
+              <DialogTitle>Create New Purchase Order</DialogTitle>
               <DialogDescription>
-                Enter the details for the new estimate.
+                Enter the details for the new purchase order.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -59,21 +67,33 @@ export function EstimatesManagement() {
                 <Input
                   id="date"
                   type="date"
-                  value={newEstimate.date}
-                  onChange={(e) => setNewEstimate({ ...newEstimate, date: e.target.value })}
+                  value={newPurchaseOrder.date}
+                  onChange={(e) => setNewPurchaseOrder({ ...newPurchaseOrder, date: e.target.value })}
                   className="col-span-3"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
+                <Label htmlFor="poNumber" className="text-right">
+                  PO #
                 </Label>
                 <Input
-                  id="name"
-                  value={newEstimate.name}
-                  onChange={(e) => setNewEstimate({ ...newEstimate, name: e.target.value })}
+                  id="poNumber"
+                  value={newPurchaseOrder.poNumber}
+                  onChange={(e) => setNewPurchaseOrder({ ...newPurchaseOrder, poNumber: e.target.value })}
                   className="col-span-3"
-                  placeholder="Client Name"
+                  placeholder="PO-001"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="vendorName" className="text-right">
+                  Vendor Name
+                </Label>
+                <Input
+                  id="vendorName"
+                  value={newPurchaseOrder.vendorName}
+                  onChange={(e) => setNewPurchaseOrder({ ...newPurchaseOrder, vendorName: e.target.value })}
+                  className="col-span-3"
+                  placeholder="Vendor Name"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -82,8 +102,8 @@ export function EstimatesManagement() {
                 </Label>
                 <Input
                   id="contact"
-                  value={newEstimate.contact}
-                  onChange={(e) => setNewEstimate({ ...newEstimate, contact: e.target.value })}
+                  value={newPurchaseOrder.contact}
+                  onChange={(e) => setNewPurchaseOrder({ ...newPurchaseOrder, contact: e.target.value })}
                   className="col-span-3"
                   placeholder="(555) 123-4567"
                   type="tel"
@@ -96,8 +116,8 @@ export function EstimatesManagement() {
                 <Input
                   id="email"
                   type="email"
-                  value={newEstimate.email}
-                  onChange={(e) => setNewEstimate({ ...newEstimate, email: e.target.value })}
+                  value={newPurchaseOrder.email}
+                  onChange={(e) => setNewPurchaseOrder({ ...newPurchaseOrder, email: e.target.value })}
                   className="col-span-3"
                   placeholder="email@example.com"
                 />
@@ -109,8 +129,8 @@ export function EstimatesManagement() {
                 <Input
                   id="amount"
                   type="number"
-                  value={newEstimate.amount}
-                  onChange={(e) => setNewEstimate({ ...newEstimate, amount: parseFloat(e.target.value) })}
+                  value={newPurchaseOrder.amount}
+                  onChange={(e) => setNewPurchaseOrder({ ...newPurchaseOrder, amount: parseFloat(e.target.value) })}
                   className="col-span-3"
                   placeholder="0.00"
                   min="0"
@@ -124,7 +144,7 @@ export function EstimatesManagement() {
               )}
             </div>
             <DialogFooter>
-              <Button onClick={handleCreateEstimate}>Create Estimate</Button>
+              <Button onClick={handleCreatePurchaseOrder}>Create Purchase Order</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -133,22 +153,22 @@ export function EstimatesManagement() {
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
-            <TableHead>Estimate #</TableHead>
-            <TableHead>Name</TableHead>
+            <TableHead>PO #</TableHead>
+            <TableHead>Vendor Name</TableHead>
             <TableHead>Contact #</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Amount</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {estimates.map((estimate) => (
-            <TableRow key={estimate.id}>
-              <TableCell>{estimate.date}</TableCell>
-              <TableCell>{estimate.id}</TableCell>
-              <TableCell>{estimate.name}</TableCell>
-              <TableCell>{estimate.contact}</TableCell>
-              <TableCell>{estimate.email}</TableCell>
-              <TableCell>${estimate.amount.toFixed(2)}</TableCell>
+          {purchaseOrders.map((po) => (
+            <TableRow key={po.id}>
+              <TableCell>{po.date}</TableCell>
+              <TableCell>{po.poNumber}</TableCell>
+              <TableCell>{po.vendorName}</TableCell>
+              <TableCell>{po.contact}</TableCell>
+              <TableCell>{po.email}</TableCell>
+              <TableCell>${po.amount.toFixed(2)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

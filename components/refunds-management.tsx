@@ -8,30 +8,33 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-// Mock data for refunds
-const mockRefunds = [
-  { id: 1, date: '2023-05-01', invoiceId: 'INV001', receiptId: 'REC001', name: 'Acme Corp', mode: 'Credit Card', amount: 100 },
-  { id: 2, date: '2023-05-05', invoiceId: 'INV002', receiptId: 'REC002', name: 'Globex Inc', mode: 'Bank Transfer', amount: 150 },
-  { id: 3, date: '2023-05-08', invoiceId: 'INV003', receiptId: 'REC003', name: 'Initech', mode: 'Cash', amount: 80 },
-]
+import { v4 as uuidv4 } from 'uuid'
+import { Refund } from '@/utils/types'
+import { mockRefunds } from '@/utils/mocks'
 
 export function RefundsManagement() {
-  const [refunds, setRefunds] = useState(mockRefunds)
-  const [newRefund, setNewRefund] = useState({ date: '', invoiceId: '', receiptId: '', name: '', mode: '', amount: '' })
+  const [refunds, setRefunds] = useState<Refund[]>(mockRefunds)
+  const [newRefund, setNewRefund] = useState<Omit<Refund, 'id'>>({ date: '', invoiceId: '', receiptId: '', name: '', mode: 'Credit Card', amount: 0 })
+  const [error, setError] = useState<string>('')
 
   const handleCreateRefund = () => {
-    const refund = {
-      id: refunds.length + 1,
-      date: newRefund.date,
-      invoiceId: newRefund.invoiceId,
-      receiptId: newRefund.receiptId,
-      name: newRefund.name,
-      mode: newRefund.mode,
-      amount: parseFloat(newRefund.amount),
+    const { date, invoiceId, receiptId, name, mode, amount } = newRefund
+    if (!date || !invoiceId || !receiptId || !name || !mode || amount <= 0) {
+      setError('All fields are required and amount must be greater than 0.')
+      return
+    }
+    const refund: Refund = {
+      id: uuidv4(),
+      date,
+      invoiceId,
+      receiptId,
+      name,
+      mode,
+      amount,
     }
     setRefunds([...refunds, refund])
-    setNewRefund({ date: '', invoiceId: '', receiptId: '', name: '', mode: '', amount: '' })
+    setNewRefund({ date: '', invoiceId: '', receiptId: '', name: '', mode: 'Credit Card', amount: 0 })
+    setError('')
   }
 
   return (
@@ -72,6 +75,7 @@ export function RefundsManagement() {
                   value={newRefund.invoiceId}
                   onChange={(e) => setNewRefund({ ...newRefund, invoiceId: e.target.value })}
                   className="col-span-3"
+                  placeholder="INV001"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -83,6 +87,7 @@ export function RefundsManagement() {
                   value={newRefund.receiptId}
                   onChange={(e) => setNewRefund({ ...newRefund, receiptId: e.target.value })}
                   className="col-span-3"
+                  placeholder="REC001"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -94,6 +99,7 @@ export function RefundsManagement() {
                   value={newRefund.name}
                   onChange={(e) => setNewRefund({ ...newRefund, name: e.target.value })}
                   className="col-span-3"
+                  placeholder="Client Name"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -101,7 +107,8 @@ export function RefundsManagement() {
                   Mode
                 </Label>
                 <Select
-                  onValueChange={(value) => setNewRefund({ ...newRefund, mode: value })}
+                  value={newRefund.mode}
+                  onValueChange={(value) => setNewRefund({ ...newRefund, mode: value as Refund['mode'] })}
                 >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select mode" />
@@ -121,10 +128,18 @@ export function RefundsManagement() {
                   id="amount"
                   type="number"
                   value={newRefund.amount}
-                  onChange={(e) => setNewRefund({ ...newRefund, amount: e.target.value })}
+                  onChange={(e) => setNewRefund({ ...newRefund, amount: parseFloat(e.target.value) })}
                   className="col-span-3"
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
                 />
               </div>
+              {error && (
+                <div className="col-span-4 text-red-500 text-sm">
+                  {error}
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button onClick={handleCreateRefund}>Record Refund</Button>

@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { Plus, FileText } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -5,36 +7,30 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-
-// Mock data for clients
-const mockClients = [
-  { id: 1, name: 'Acme Corp', contact_number: '123-456-7890', email: 'contact@acmecorp.com' },
-  { id: 2, name: 'TechStart Inc', contact_number: '987-654-3210', email: 'info@techstart.com' },
-  { id: 3, name: 'Global Services LLC', contact_number: '456-789-0123', email: 'support@globalservices.com' },
-]
-
-// Define the Client interface
-interface Client {
-  id: number;
-  name: string;
-  contact_number: string;
-  email: string;
-}
+import { Client } from '@/utils/types'
+import { mockClients } from '@/utils/mocks'
 
 export function ClientManagement() {
   const [clients, setClients] = useState<Client[]>(mockClients)
   const [newClient, setNewClient] = useState<Omit<Client, 'id'>>({ name: '', contact_number: '', email: '' })
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
+  const [error, setError] = useState<string>('')
 
   const handleCreateClient = () => {
+    const { name, contact_number, email } = newClient
+    if (!name || !contact_number || !email) {
+      setError('All fields are required.')
+      return
+    }
     const client: Client = {
       id: clients.length + 1,
-      name: newClient.name,
-      contact_number: newClient.contact_number,
-      email: newClient.email,
+      name,
+      contact_number,
+      email,
     }
     setClients([...clients, client])
     setNewClient({ name: '', contact_number: '', email: '' })
+    setError('')
   }
 
   const handleViewSummary = (client: Client) => {
@@ -67,6 +63,7 @@ export function ClientManagement() {
                   value={newClient.name}
                   onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
                   className="col-span-3"
+                  placeholder="Client Name"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -78,6 +75,8 @@ export function ClientManagement() {
                   value={newClient.contact_number}
                   onChange={(e) => setNewClient({ ...newClient, contact_number: e.target.value })}
                   className="col-span-3"
+                  placeholder="123-456-7890"
+                  type="tel"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -90,8 +89,14 @@ export function ClientManagement() {
                   value={newClient.email}
                   onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
                   className="col-span-3"
+                  placeholder="email@example.com"
                 />
               </div>
+              {error && (
+                <div className="col-span-4 text-red-500 text-sm">
+                  {error}
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button onClick={handleCreateClient}>Add Client</Button>
