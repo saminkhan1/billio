@@ -13,13 +13,21 @@ const mockClients = [
   { id: 3, name: 'Global Services LLC', contact_number: '456-789-0123', email: 'support@globalservices.com' },
 ]
 
+// Define the Client interface
+interface Client {
+  id: number;
+  name: string;
+  contact_number: string;
+  email: string;
+}
+
 export function ClientManagement() {
-  const [clients, setClients] = useState(mockClients)
-  const [newClient, setNewClient] = useState({ name: '', contact_number: '', email: '' })
-  const [selectedClient, setSelectedClient] = useState(null)
+  const [clients, setClients] = useState<Client[]>(mockClients)
+  const [newClient, setNewClient] = useState<Omit<Client, 'id'>>({ name: '', contact_number: '', email: '' })
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
 
   const handleCreateClient = () => {
-    const client = {
+    const client: Client = {
       id: clients.length + 1,
       name: newClient.name,
       contact_number: newClient.contact_number,
@@ -29,7 +37,7 @@ export function ClientManagement() {
     setNewClient({ name: '', contact_number: '', email: '' })
   }
 
-  const handleViewSummary = (client) => {
+  const handleViewSummary = (client: Client) => {
     setSelectedClient(client)
   }
 
