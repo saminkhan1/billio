@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Vendor } from '@/utils/types'
+import type { Vendor } from '@/utils/types'
 import { mockVendors } from '@/utils/mocks'
 
 export function VendorManagement() {
@@ -23,7 +23,7 @@ export function VendorManagement() {
     country: '',
     payment_terms: 'Net 30',
     website: ''
-  })
+  } as Omit<Vendor, 'id'>)
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
   const [error, setError] = useState<string>('')
 

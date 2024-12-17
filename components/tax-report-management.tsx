@@ -88,14 +88,17 @@ export function TaxReportManagement() {
     fetchTaxData()
   }, [period, selectedDate])
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, string> = {
-      draft: 'secondary',
-      submitted: 'warning',
-      accepted: 'success',
-      rejected: 'destructive'
+  const getStatusBadge = (status: string): "default" | "destructive" | "outline" | "secondary" => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'outline'
+      case 'completed':
+        return 'default'
+      case 'failed':
+        return 'destructive'
+      default:
+        return 'secondary'
     }
-    return variants[status] || 'secondary'
   }
 
   const getQuarterFromMonth = (month: number): number => Math.floor(month / 3) + 1

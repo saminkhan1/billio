@@ -106,8 +106,15 @@ export interface Refund {
 export interface Vendor {
   id: number
   company_name: string
-  contact: string
+  contact_name: string
   email: string
+  phone: string
+  tax_id?: string
+  address?: string
+  city?: string
+  country?: string
+  payment_terms?: string
+  website?: string
 }
 
 export interface PurchaseOrder {
