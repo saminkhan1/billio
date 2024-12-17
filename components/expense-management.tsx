@@ -8,50 +8,54 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { v4 as uuidv4 } from 'uuid'
 import { Expense } from '@/utils/types'
-import { mockExpenses } from '@/utils/mocks'
+import { mockExpenses, mockVendors } from '@/utils/mocks'
 
 export function ExpenseManagement() {
   const [expenses, setExpenses] = useState<Expense[]>(mockExpenses)
   const [newExpense, setNewExpense] = useState<Omit<Expense, 'id'>>({
-    date: '',
-    expenseNumber: '',
-    vendorName: '',
+    expense_date: new Date(),
+    expense_number: '',
+    vendor_id: 0,
     category: 'Supplies',
+    description: '',
     amount: 0,
-    status: 'Pending'
+    tax_amount: 0,
+    payment_status: 'Pending',
+    payment_method: 'Credit Card',
+    reference_number: '',
+    notes: ''
   })
   const [error, setError] = useState<string>('')
 
   const handleCreateExpense = () => {
-    const { date, expenseNumber, vendorName, category, amount, status } = newExpense
-    if (!date || !expenseNumber || !vendorName || !category || amount <= 0) {
-      setError('All fields are required and amount must be greater than 0.')
+    const { expense_date, expense_number, vendor_id, category, amount } = newExpense
+    if (!expense_date || !expense_number || !vendor_id || !category || amount <= 0) {
+      setError('Date, expense number, vendor, category and amount are required. Amount must be greater than 0.')
       return
     }
     const expense: Expense = {
-      id: uuidv4(),
-      date,
-      expenseNumber,
-      vendorName,
-      category,
-      amount,
-      status
+      id: Math.max(0, ...expenses.map(e => e.id)) + 1,
+      ...newExpense
     }
     setExpenses([...expenses, expense])
     setNewExpense({
-      date: '',
-      expenseNumber: '',
-      vendorName: '',
+      expense_date: new Date(),
+      expense_number: '',
+      vendor_id: 0,
       category: 'Supplies',
+      description: '',
       amount: 0,
-      status: 'Pending'
+      tax_amount: 0,
+      payment_status: 'Pending',
+      payment_method: 'Credit Card',
+      reference_number: '',
+      notes: ''
     })
     setError('')
   }
 
-  const getStatusColor = (status: Expense['status']) => {
+  const getStatusColor = (status: Expense['payment_status']) => {
     switch (status) {
       case 'Paid':
         return 'bg-green-100 text-green-800'
@@ -61,6 +65,16 @@ export function ExpenseManagement() {
         return 'bg-blue-100 text-blue-800'
       default:
         return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const formatDate = (date: Date | null | undefined) => {
+    if (!date) return '-'
+    try {
+      return date.toLocaleDateString()
+    } catch (error) {
+      console.error('Invalid date:', date)
+      return '-'
     }
   }
 
@@ -83,43 +97,51 @@ export function ExpenseManagement() {
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="date" className="text-right">
-                  Date
+                  Date *
                 </Label>
                 <Input
                   id="date"
                   type="date"
-                  value={newExpense.date}
-                  onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
+                  value={newExpense.expense_date.toISOString().split('T')[0]}
+                  onChange={(e) => setNewExpense({ ...newExpense, expense_date: new Date(e.target.value) })}
                   className="col-span-3"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="expenseNumber" className="text-right">
-                  Expense #
+                  Expense # *
                 </Label>
                 <Input
                   id="expenseNumber"
-                  value={newExpense.expenseNumber}
-                  onChange={(e) => setNewExpense({ ...newExpense, expenseNumber: e.target.value })}
+                  value={newExpense.expense_number}
+                  onChange={(e) => setNewExpense({ ...newExpense, expense_number: e.target.value })}
                   className="col-span-3"
                   placeholder="EXP-001"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="vendorName" className="text-right">
-                  Vendor Name
+                <Label htmlFor="vendor_id" className="text-right">
+                  Vendor *
                 </Label>
-                <Input
-                  id="vendorName"
-                  value={newExpense.vendorName}
-                  onChange={(e) => setNewExpense({ ...newExpense, vendorName: e.target.value })}
-                  className="col-span-3"
-                  placeholder="Vendor Name"
-                />
+                <Select
+                  value={newExpense.vendor_id.toString()}
+                  onValueChange={(value) => setNewExpense({ ...newExpense, vendor_id: parseInt(value) })}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select vendor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockVendors.map(vendor => (
+                      <SelectItem key={vendor.id} value={vendor.id.toString()}>
+                        {vendor.company_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="category" className="text-right">
-                  Category
+                  Category *
                 </Label>
                 <Select
                   value={newExpense.category}
@@ -139,8 +161,20 @@ export function ExpenseManagement() {
                 </Select>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="description" className="text-right">
+                  Description
+                </Label>
+                <Input
+                  id="description"
+                  value={newExpense.description}
+                  onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
+                  className="col-span-3"
+                  placeholder="Expense description"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="amount" className="text-right">
-                  Amount
+                  Amount *
                 </Label>
                 <Input
                   id="amount"
@@ -154,12 +188,12 @@ export function ExpenseManagement() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="status" className="text-right">
+                <Label htmlFor="payment_status" className="text-right">
                   Status
                 </Label>
                 <Select
-                  value={newExpense.status}
-                  onValueChange={(value) => setNewExpense({ ...newExpense, status: value as Expense['status'] })}
+                  value={newExpense.payment_status}
+                  onValueChange={(value) => setNewExpense({ ...newExpense, payment_status: value as Expense['payment_status'] })}
                 >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select status" />
@@ -188,8 +222,9 @@ export function ExpenseManagement() {
           <TableRow>
             <TableHead>Date</TableHead>
             <TableHead>Expense #</TableHead>
-            <TableHead>Vendor Name</TableHead>
+            <TableHead>Vendor</TableHead>
             <TableHead>Category</TableHead>
+            <TableHead>Description</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
@@ -197,14 +232,17 @@ export function ExpenseManagement() {
         <TableBody>
           {expenses.map((expense) => (
             <TableRow key={expense.id}>
-              <TableCell>{expense.date}</TableCell>
-              <TableCell>{expense.expenseNumber}</TableCell>
-              <TableCell>{expense.vendorName}</TableCell>
+              <TableCell>{formatDate(expense.expense_date)}</TableCell>
+              <TableCell>{expense.expense_number}</TableCell>
+              <TableCell>
+                {mockVendors.find(v => v.id === expense.vendor_id)?.company_name || '-'}
+              </TableCell>
               <TableCell>{expense.category}</TableCell>
+              <TableCell>{expense.description || '-'}</TableCell>
               <TableCell>${expense.amount.toFixed(2)}</TableCell>
               <TableCell>
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(expense.status)}`}>
-                  {expense.status}
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(expense.payment_status)}`}>
+                  {expense.payment_status}
                 </span>
               </TableCell>
             </TableRow>

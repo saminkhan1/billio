@@ -1,0 +1,83 @@
+# Database Tables
+
+## clients
+- **id** (integer, `int4`)
+  - Unique identifier for the client
+- **company_name** (text)
+  - Name of the client company
+- **contact_name** (text)
+  - Name of the primary contact person for the client  
+- **email** (text)
+  - Email address for the client contact
+- **phone** (text)
+  - Phone number for the client contact
+- **vat_number** (text)
+  - Value-Added Tax (VAT) registration number for the client
+- **address** (text)
+  - Mailing address for the client
+- **city** (text)
+  - City where the client is located
+- **country** (text)
+  - Country where the client is located
+
+## invoice_line_items
+- **id** (integer, `int4`)
+  - Unique identifier for the invoice line item
+- **invoice_id** (integer, `int4`, foreign key referencing invoices.id)
+  - ID of the invoice this line item belongs to
+- **product_id** (integer, `int4`, foreign key referencing products.id)
+  - ID of the product for this line item
+- **quantity** (numeric)
+  - Quantity of the product ordered
+- **price** (numeric)
+  - Price per unit of the product
+- **tax_rate** (numeric)
+  - Tax rate to apply to this line item
+- **created_at** (timestamp with time zone, `timestamptz`)
+  - Date and time when this line item was created
+- **updated_at** (timestamp with time zone, `timestamptz`)
+  - Date and time when this line item was last updated
+
+## invoices
+- **id** (integer, `int4`, primary key)
+  - Unique identifier for the invoice
+- **client_id** (integer, `int4`, foreign key referencing clients.id)
+  - ID of the client this invoice belongs to
+- **invoice_number** (text)
+  - Unique number assigned to identify this invoice
+- **issue_date** (date, `date`)
+  - Date when the invoice was issued
+- **due_date** (date, `date`)
+  - Date when the invoice payment is due
+- **subtotal** (numeric)
+  - Total amount of the invoice before taxes
+- **vat_rate** (numeric)
+  - VAT rate to apply to the invoice
+- **status** (text)
+  - Current status of the invoice (e.g. "Draft", "Paid", "Overdue")
+- **notes** (text)
+  - Any additional notes or comments about the invoice
+
+## products
+- **id** (integer, `int4`, primary key)
+  - Unique identifier for the product
+- **name** (text)
+  - Name of the product
+- **description** (text)
+  - Description of the product
+- **price** (numeric)
+  - Retail price of the product
+- **cost** (numeric)
+  - Wholesale cost of the product
+- **tax_rate** (numeric)
+  - Tax rate to apply to this product
+- **hsn_code** (text)
+  - Harmonized System (HS) code for the product
+- **barcode** (text)
+  - Barcode or SKU number for the product
+- **sku** (text)
+  - Stock Keeping Unit (SKU) for the product
+- **unit_of_measurement** (text)
+  - Unit used to measure the product (e.g. "each", "pound", "meter")
+- **quantity_in_stock** (numeric)
+  - Current quantity of this product in stock

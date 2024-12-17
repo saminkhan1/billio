@@ -83,3 +83,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+[cmdk-list] {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+[cmdk-item][data-disabled='true'] {
+  pointer-events: none;
+  opacity: 0.5;
+}

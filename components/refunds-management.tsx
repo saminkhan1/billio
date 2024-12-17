@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -8,39 +8,92 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { v4 as uuidv4 } from 'uuid'
-import { Refund } from '@/utils/types'
-import { mockRefunds } from '@/utils/mocks'
+import { createClient } from '@/utils/supabase/client'
+
+interface Refund {
+  id: number
+  date: string
+  invoice_id: string
+  receipt_id: string
+  name: string
+  mode: 'Credit Card' | 'Cash' | 'Bank Transfer'
+  amount: number
+}
 
 export function RefundsManagement() {
-  const [refunds, setRefunds] = useState<Refund[]>(mockRefunds)
-  const [newRefund, setNewRefund] = useState<Omit<Refund, 'id'>>({ date: '', invoiceId: '', receiptId: '', name: '', mode: 'Credit Card', amount: 0 })
+  const [refunds, setRefunds] = useState<Refund[]>([])
+  const [newRefund, setNewRefund] = useState<Omit<Refund, 'id'>>({
+    date: '',
+    invoice_id: '',
+    receipt_id: '',
+    name: '',
+    mode: 'Credit Card',
+    amount: 0
+  })
   const [error, setError] = useState<string>('')
+  const [open, setOpen] = useState(false)
+  const supabase = createClient()
 
-  const handleCreateRefund = () => {
-    const { date, invoiceId, receiptId, name, mode, amount } = newRefund
-    if (!date || !invoiceId || !receiptId || !name || !mode || amount <= 0) {
+  useEffect(() => {
+    fetchRefunds()
+  }, [])
+
+  const fetchRefunds = async () => {
+    const { data, error } = await supabase
+      .from('refunds')
+      .select('*')
+      .order('date', { ascending: false })
+
+    if (error) {
+      setError('Failed to fetch refunds')
+      console.error('Error fetching refunds:', error)
+      return
+    }
+
+    setRefunds(data || [])
+  }
+
+  const handleCreateRefund = async () => {
+    const { date, invoice_id, receipt_id, name, mode, amount } = newRefund
+    if (!date || !invoice_id || !receipt_id || !name || !mode || amount <= 0) {
       setError('All fields are required and amount must be greater than 0.')
       return
     }
-    const refund: Refund = {
-      id: uuidv4(),
-      date,
-      invoiceId,
-      receiptId,
-      name,
-      mode,
-      amount,
+
+    const { error: insertError } = await supabase
+      .from('refunds')
+      .insert([{
+        date,
+        invoice_id,
+        receipt_id,
+        name,
+        mode,
+        amount
+      }])
+
+    if (insertError) {
+      setError('Failed to create refund')
+      console.error('Error creating refund:', insertError)
+      return
     }
-    setRefunds([...refunds, refund])
-    setNewRefund({ date: '', invoiceId: '', receiptId: '', name: '', mode: 'Credit Card', amount: 0 })
+
+    fetchRefunds()
+    setNewRefund({
+      date: '',
+      invoice_id: '',
+      receipt_id: '',
+      name: '',
+      mode: 'Credit Card',
+      amount: 0
+    })
     setError('')
+    setOpen(false)
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end ">
-        <Dialog>
+      <div className="flex justify-end">
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" /> Record Refund
@@ -67,25 +120,25 @@ export function RefundsManagement() {
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="invoiceId" className="text-right">
+                <Label htmlFor="invoice_id" className="text-right">
                   Invoice #
                 </Label>
                 <Input
-                  id="invoiceId"
-                  value={newRefund.invoiceId}
-                  onChange={(e) => setNewRefund({ ...newRefund, invoiceId: e.target.value })}
+                  id="invoice_id"
+                  value={newRefund.invoice_id}
+                  onChange={(e) => setNewRefund({ ...newRefund, invoice_id: e.target.value })}
                   className="col-span-3"
                   placeholder="INV001"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="receiptId" className="text-right">
+                <Label htmlFor="receipt_id" className="text-right">
                   Receipt #
                 </Label>
                 <Input
-                  id="receiptId"
-                  value={newRefund.receiptId}
-                  onChange={(e) => setNewRefund({ ...newRefund, receiptId: e.target.value })}
+                  id="receipt_id"
+                  value={newRefund.receipt_id}
+                  onChange={(e) => setNewRefund({ ...newRefund, receipt_id: e.target.value })}
                   className="col-span-3"
                   placeholder="REC001"
                 />
@@ -161,9 +214,9 @@ export function RefundsManagement() {
         <TableBody>
           {refunds.map((refund) => (
             <TableRow key={refund.id}>
-              <TableCell>{refund.date}</TableCell>
-              <TableCell>{refund.invoiceId}</TableCell>
-              <TableCell>{refund.receiptId}</TableCell>
+              <TableCell>{new Date(refund.date).toLocaleDateString()}</TableCell>
+              <TableCell>{refund.invoice_id}</TableCell>
+              <TableCell>{refund.receipt_id}</TableCell>
               <TableCell>{refund.name}</TableCell>
               <TableCell>{refund.mode}</TableCell>
               <TableCell>${refund.amount.toFixed(2)}</TableCell>
