@@ -139,20 +139,24 @@ export function AppSidebar({ activeTab, setActiveTab }: AppSidebarProps) {
             </SidebarHeader>
             <SidebarContent className="gap-0">
                 {/* Overview Button */}
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            asChild
-                            isActive={activeTab === 'overview'}
-                            onClick={(e) => handleClick(e as any, 'overview')}
-                        >
-                            <a href="#" className="flex items-center">
-                                <DollarSign className="mr-2 h-4 w-4" />
-                                Overview
-                            </a>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+                <SidebarGroup>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={activeTab === 'overview'}
+                                    onClick={(e) => handleClick(e as any, 'overview')}
+                                >
+                                    <a href="#" className="flex items-center">
+                                        <DollarSign className="mr-2 h-4 w-4" />
+                                        Overview
+                                    </a>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
 
                 {data.navMain.map((section) => (
                     <Collapsible
